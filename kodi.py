@@ -149,20 +149,39 @@ def matchHeard(heard, results, lookingFor='label'):
     result_name = str(ascii_name).lower().translate(None, string.punctuation)
 
     # Direct comparison
+    print 'Trying: ' + result_name
     if heard == result_name:
       located = result
       break
 
     # Remove 'the'
+    print 'Trying: ' + remove_the(result_name)
     if remove_the(result_name) == heard_minus_the:
       located = result
       break
 
     # Remove parentheses
     removed_paren = re.sub(r'\([^)]*\)', '', ascii_name).rstrip().lower().translate(None, string.punctuation)
+    print 'Trying: ' + removed_paren
     if heard == removed_paren:
       located = result
       break
+
+    # Remove parentheses and text inside (eliminates country specific suffixes, for example in 'The Office (US)'
+    removed_paren_content = re.sub(r'\([^)]*\)', '', ascii_name).rstrip().lower().translate(None, string.punctuation)
+    print 'Trying: ' + removed_paren_content
+    if heard == removed_paren_content:
+      located = result
+      break
+
+    # Remove whitespace to deal with words heard as separate, for example 'West World' should be 'Westworld'
+    heard_no_space = heard.replace(' ', '')
+    print 'Looking for: ' + heard_no_space
+    if heard_no_space == result:
+      located = result
+      break
+      
+    # TODO: What about combinations of these, for example using heard_minus_the?
 
   if not located:
     print 'not located on the first round of checks'
